@@ -1,0 +1,65 @@
+version: '3'
+
+services:
+  webserver:
+    build:
+      context: ./bin/webserver
+    container_name: "global-webserver"
+    restart: "always"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "9001:9001"
+    networks:
+      - backend
+    volumes:
+      - ${DOCUMENT_ROOT}:/var/www/html
+      - ${PHP_INI}:/usr/local/etc/php/php.ini
+      - ${VHOSTS_DIR}:/etc/apache2/sites-enabled
+      - ${APACHE_CONF_FILE}:/etc/apache2/apache2.conf
+      - ${APACHE_LOG_DIR}:/var/log/apache2
+      - ${BASHRC}:/root/.bashrc
+      - ${SUPERVISOR_DIR}:/etc/supervisor
+    links:
+      - beanstalkd:beanstalkd
+  # webserver_beanstalkd:
+  #   build:
+  #     context: ./bin/beanstalkd_webserver
+  #   container_name: "beanstalkd-webserver"
+  #   restart: "always"
+  #   ports:
+  #     - "88:88"
+  #   networks:
+  #     - backend
+  #   volumes:
+  #     - ${DOCUMENT_ROOT}bean/:/var/www/html
+  #     - ${PHP_INI}bean/:/usr/local/etc/php/php.ini
+  #     - ${VHOSTS_DIR}bean/:/etc/apache2/sites-enabled
+  #     - ${APACHE_CONF_FILE}bean/:/etc/apache2/apache2.conf
+  #     - ${APACHE_LOG_DIR}bean/:/var/log/apache2
+  #     - ${BASHRC}bean/:/root/.bashrc
+  mysql:
+    image: mariadb:10.2
+    container_name: "global-mariadb"
+    command: mysqld --innodb-flush-method=littlesync --innodb-use-native-aio=OFF --log_bin=ON
+    restart: "always"
+    networks:
+      - backend
+    ports:
+      - "3306:3306"
+    volumes:
+      - ${MYSQL_DATA_DIR}:/var/lib/mysql
+      - ${MYSQL_LOG_DIR}:/var/log/mysql
+    environment:
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+  beanstalkd:
+    container_name: "beanstalkd"
+    image: schickling/beanstalkd:latest
+    restart: always
+    networks:
+      - backend
+    ports:
+      - "11300:11300"
+networks:
+    backend:

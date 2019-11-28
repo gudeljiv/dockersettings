@@ -1,0 +1,10 @@
+config/php/php.ini
+config/vhosts/default.conf
+
+/data
+/logs
+
+!data/mysql/.gitkeep
+!logs/apache2/.gitkeep
+
+.env
