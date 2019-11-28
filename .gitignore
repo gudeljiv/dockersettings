@@ -7,4 +7,4 @@ config/vhosts/default.conf
 !data/mysql/.gitkeep
 !logs/apache2/.gitkeep
 
-.env
+# .env
