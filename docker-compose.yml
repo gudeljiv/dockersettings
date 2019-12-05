@@ -1,10 +1,10 @@
-version: '3'
+version: "3"
 
 services:
   webserver:
     build:
       context: ./bin/webserver
-    container_name: "global-webserver"
+    container_name: "webserver"
     restart: "always"
     ports:
       - "80:80"
@@ -40,7 +40,7 @@ services:
   #     - ${BASHRC}bean/:/root/.bashrc
   mysql:
     image: mariadb:10.2
-    container_name: "global-mariadb"
+    container_name: "mariadb"
     command: mysqld --innodb-flush-method=littlesync --innodb-use-native-aio=OFF --log_bin=ON
     restart: "always"
     networks:
@@ -62,4 +62,4 @@ services:
     ports:
       - "11300:11300"
 networks:
-    backend:
+  backend:
