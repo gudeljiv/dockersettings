@@ -1,5 +1,5 @@
-config/php/php.ini
-config/vhosts/default.conf
+# config/php/php.ini
+# config/vhosts/default.conf
 
 /data
 /data__
