@@ -1,4 +1,4 @@
-FROM php:7.2-apache
+FROM php:7.3-apache
 
 RUN apt-get -y update --fix-missing
 RUN apt-get upgrade -y
@@ -42,15 +42,15 @@ RUN apt-get install -y zlib1g-dev libicu-dev g++ \
 	&& docker-php-ext-install intl
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-    xz-utils \
-    ca-certificates \
-    xfonts-100dpi \
-    xfonts-75dpi \
-    xfonts-base \
-    fonts-roboto \
-    fonts-inconsolata \
-    fontconfig \
-    xorg
+	xz-utils \
+	ca-certificates \
+	xfonts-100dpi \
+	xfonts-75dpi \
+	xfonts-base \
+	fonts-roboto \
+	fonts-inconsolata \
+	fontconfig \
+	xorg
 
 # install WKHTMLTOPDF
 RUN wget -nv -O /tmp/wkhtmltox.deb https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb

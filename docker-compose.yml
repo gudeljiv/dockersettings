@@ -1,65 +1,102 @@
-version: "3"
+version: '3'
 
 services:
-  webserver:
-    build:
-      context: ./bin/webserver
-    container_name: "webserver"
-    restart: "always"
-    ports:
-      - "80:80"
-      - "443:443"
-      - "9001:9001"
-    networks:
-      - backend
-    volumes:
-      - ${DOCUMENT_ROOT}:/var/www/html
-      - ${PHP_INI}:/usr/local/etc/php/php.ini
-      - ${VHOSTS_DIR}:/etc/apache2/sites-enabled
-      - ${APACHE_CONF_FILE}:/etc/apache2/apache2.conf
-      - ${APACHE_LOG_DIR}:/var/log/apache2
-      - ${BASHRC}:/root/.bashrc
-      - ${SUPERVISOR_DIR}:/etc/supervisor
-    links:
-      - beanstalkd:beanstalkd
-  # webserver_beanstalkd:
-  #   build:
-  #     context: ./bin/beanstalkd_webserver
-  #   container_name: "beanstalkd-webserver"
-  #   restart: "always"
-  #   ports:
-  #     - "88:88"
-  #   networks:
-  #     - backend
-  #   volumes:
-  #     - ${DOCUMENT_ROOT}bean/:/var/www/html
-  #     - ${PHP_INI}bean/:/usr/local/etc/php/php.ini
-  #     - ${VHOSTS_DIR}bean/:/etc/apache2/sites-enabled
-  #     - ${APACHE_CONF_FILE}bean/:/etc/apache2/apache2.conf
-  #     - ${APACHE_LOG_DIR}bean/:/var/log/apache2
-  #     - ${BASHRC}bean/:/root/.bashrc
-  mysql:
-    image: mariadb:10.2
-    container_name: "mariadb"
-    command: mysqld --innodb-flush-method=littlesync --innodb-use-native-aio=OFF --log_bin=ON
-    restart: "always"
-    networks:
-      - backend
-    ports:
-      - "3306:3306"
-    volumes:
-      - ${MYSQL_DATA_DIR}:/var/lib/mysql
-      - ${MYSQL_LOG_DIR}:/var/log/mysql
-    environment:
-      MYSQL_ROOT_HOST: "%"
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-  beanstalkd:
-    container_name: "beanstalkd"
-    image: schickling/beanstalkd:latest
-    restart: always
-    networks:
-      - backend
-    ports:
-      - "11300:11300"
+    webserver:
+        container_name: 'webserver'
+        build:
+            context: ./bin/webserver
+        restart: 'always'
+        ports:
+            - '80:80'
+            - '443:443'
+            - '9001:9001'
+        networks:
+            - backend
+        volumes:
+            - ${DOCUMENT_ROOT}:/var/www/html
+            - ${PHP_INI}:/usr/local/etc/php/php.ini
+            - ${VHOSTS_DIR}:/etc/apache2/sites-enabled
+            - ${APACHE_CONF_FILE}:/etc/apache2/apache2.conf
+            - ${APACHE_LOG_DIR}:/var/log/apache2
+            - ${BASHRC}:/root/.bashrc
+            - ${SUPERVISOR_DIR}:/etc/supervisor
+            - ${OPENSSL_DIR}:/etc/ssl
+        links:
+            - beanstalkd:beanstalkd
+            - memcached:memcached
+
+    mysql:
+        container_name: 'mariadb'
+        image: mariadb:10.8.3
+        command: mysqld --innodb-flush-method=littlesync --innodb-use-native-aio=OFF --log_bin=ON
+        restart: 'always'
+        networks:
+            - backend
+        ports:
+            - '3306:3306'
+        volumes:
+            - ${MYSQL_DATA_DIR}:/var/lib/mysql
+            - ${MYSQL_LOG_DIR}:/var/log/mysql
+            - ${MYSQL_CONF_FILE}:/etc/mysql
+        environment:
+            MYSQL_ROOT_HOST: 'localhost'
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+    beanstalkd:
+        container_name: 'beanstalkd'
+        image: schickling/beanstalkd:latest
+        restart: always
+        networks:
+            - backend
+        ports:
+            - '11300:11300'
+
+    memcached:
+        container_name: 'memcached'
+        image: bitnami/memcached:latest
+        restart: always
+        networks:
+            - backend
+        ports:
+            - '11211:11211'
+
+    redis:
+        container_name: 'redis'
+        image: docker.io/bitnami/redis:6.0-debian-10
+        restart: always
+        environment:
+            # ALLOW_EMPTY_PASSWORD is recommended only for development.
+            - ALLOW_EMPTY_PASSWORD=yes
+            - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+        networks:
+            - backend
+        ports:
+            - '6379:6379'
+
+    sql-server-db:
+        container_name: sql-server-db
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        ports:
+            - '1433:1433'
+        environment:
+            SA_PASSWORD: 'perika10'
+            ACCEPT_EULA: 'Y'
+        networks:
+            - backend
+
+    postgres:
+        container_name: postgres
+        image: postgres:14.1-alpine
+        restart: always
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+        ports:
+            - '5432:5432'
+        volumes:
+            - /var/lib/postgresql/data
+        networks:
+            - backend
+
 networks:
-  backend:
+    backend:

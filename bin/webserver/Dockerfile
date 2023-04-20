@@ -1,4 +1,4 @@
-FROM php:7.2-apache
+FROM php:7.3-apache
 
 RUN apt-get -y update --fix-missing
 RUN apt-get upgrade -y
@@ -16,7 +16,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Other PHP7 Extensions
 RUN docker-php-ext-install pdo pdo_mysql bcmath soap mbstring exif
 RUN docker-php-ext-install mysqli
-RUN apt-get -y install bcrypt
+# RUN apt-get -y install bcrypt
 
 RUN apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev
 
@@ -71,10 +71,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
 	xorg
 
 # install WKHTMLTOPDF
-RUN wget -nv -O /tmp/wkhtmltox.deb https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb
-RUN apt-get -qy install /tmp/wkhtmltox.deb
-RUN cp /usr/local/bin/wkhtmlto* /usr/bin/
-
+RUN apt-get update && apt-get install -y wkhtmltopdf xvfb
 
 # ext-imap *
 RUN apt-get install -y libc-client-dev libkrb5-dev && rm -r /var/lib/apt/lists/* && docker-php-ext-configure imap --with-kerberos --with-imap-ssl && docker-php-ext-install imap
@@ -83,6 +80,65 @@ RUN apt-get install -y libc-client-dev libkrb5-dev && rm -r /var/lib/apt/lists/*
 RUN apt-get -y update
 RUN apt-get install -y supervisor
 RUN docker-php-ext-install sockets
+
+RUN apt-get install -y sendmail
+
+RUN apt-get install -y \
+	libzip-dev \
+	zip \
+	&& docker-php-ext-configure zip --with-libzip \
+	&& docker-php-ext-install zip
+
+# add php deployer
+RUN curl -LO https://deployer.org/deployer.phar
+RUN mv deployer.phar /usr/local/bin/dep
+RUN chmod +x /usr/local/bin/dep
+
+RUN apt-get install -y rsync
+RUN apt-get install -y npm
+RUN apt-get install -y ffmpeg
+
+
+# Install PHP Extensions (igbinary & memcached)
+# RUN apt-get update && apt-get install -y \
+# 	libpq-dev \
+# 	libmemcached-dev \
+# 	pecl install memcached && \
+# 	docker-php-ext-enable memcached
+
+# RUN apt-get upgrade -y
+# RUN apt-get install -y memcached
+# RUN apt-get install -y libmemcached-dev zlib1g-dev libicu-dev
+# RUN git clone -b php7 https://github.com/php-memcached-dev/php-memcached/usr/src/php/ext/memcached \
+# 	&& docker-php-ext-configure /usr/src/php/ext/memcached \
+# 	--disable-memcached-sasl \
+# 	&& docker-php-ext-install /usr/src/php/ext/memcached \
+# 	&& rm -rf /usr/src/php/ext/memcached
+
+
+# RUN apt-get update \
+# 	&& buildDeps=" \
+# 	git \
+# 	libmemcached-dev \
+# 	zlib1g-dev \
+# 	" \
+# 	&& doNotUninstall=" \
+# 	libmemcached11 \
+# 	libmemcachedutil2 \
+# 	" \
+# 	&& apt-get install -y $buildDeps --no-install-recommends \
+# 	&& rm -r /var/lib/apt/lists/* \
+# 	\
+# 	&& docker-php-source extract \
+# 	&& git clone --branch php7 https://github.com/php-memcached-dev/php-memcached /usr/src/php/ext/memcached/ \
+# 	&& docker-php-ext-install memcached \
+# 	\
+# 	&& docker-php-source delete \
+# 	&& apt-mark manual $doNotUninstall \
+# 	&& apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false $buildDeps
+
+# RUN /usr/local/bin/phpize && ./configure --enable-sasl && make && make install
+
 
 # start supervisor deamon
 # CMD ["/usr/bin/supervisord"]
