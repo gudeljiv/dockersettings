@@ -99,6 +99,13 @@ RUN apt-get install -y npm
 RUN apt-get install -y ffmpeg
 RUN apt-get update && apt-get install -y libpq-dev && docker-php-ext-install pdo pdo_pgsql
 
+# install PHP LDAP support
+RUN \
+    apt-get update && \
+    apt-get install libldap2-dev -y && \
+    rm -rf /var/lib/apt/lists/* && \
+    docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ && \
+    docker-php-ext-install ldap
 
 # Install PHP Extensions (igbinary & memcached)
 # RUN apt-get update && apt-get install -y \
