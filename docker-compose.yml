@@ -1,10 +1,10 @@
 version: '3'
 
 services:
-    webserver:
-        container_name: 'webserver'
+    webserver7.3:
+        container_name: 'webserver7.3'
         build:
-            context: ./bin/webserver
+            context: ./bin/webserver7.3
         restart: 'always'
         ports:
             - '80:80'
@@ -13,14 +13,38 @@ services:
         networks:
             - backend
         volumes:
-            - ${DOCUMENT_ROOT}:/var/www/html
-            - ${PHP_INI}:/usr/local/etc/php/php.ini
-            - ${VHOSTS_DIR}:/etc/apache2/sites-enabled
-            - ${APACHE_CONF_FILE}:/etc/apache2/apache2.conf
-            - ${APACHE_LOG_DIR}:/var/log/apache2
-            - ${BASHRC}:/root/.bashrc
-            - ${SUPERVISOR_DIR}:/etc/supervisor
-            - ${OPENSSL_DIR}:/etc/ssl
+            - ../../:/var/www/html
+            - ./config/php7.3/php/php.ini:/usr/local/etc/php/php.ini
+            - ./config/php7.3/vhosts:/etc/apache2/sites-enabled
+            - ./config/php7.3/apache2.conf:/etc/apache2/apache2.conf
+            - ./logs/php7.3/apache2:/var/log/apache2
+            - ./config/.bashrc:/root/.bashrc
+            - ./config/supervisor:/etc/supervisor
+            - ./config/openssl:/etc/ssl
+        links:
+            - beanstalkd:beanstalkd
+            - memcached:memcached
+
+    webserver8.1:
+        container_name: 'webserver8.1'
+        build:
+            context: ./bin/webserver8.1
+        restart: 'always'
+        ports:
+            - '81:80'
+            - '444:443'
+            - '9002:9001'
+        networks:
+            - backend
+        volumes:
+            - ../../:/var/www/html
+            - ./config/php8.1/php/php.ini:/usr/local/etc/php/php.ini
+            - ./config/php8.1/vhosts:/etc/apache2/sites-enabled
+            - ./config/php8.1/apache2.conf:/etc/apache2/apache2.conf
+            - ./logs/php8.1/apache2:/var/log/apache2
+            - ./config/.bashrc:/root/.bashrc
+            - ./config/supervisor:/etc/supervisor
+            - ./config/openssl:/etc/ssl
         links:
             - beanstalkd:beanstalkd
             - memcached:memcached
