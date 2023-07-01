@@ -97,6 +97,7 @@ RUN chmod +x /usr/local/bin/dep
 RUN apt-get install -y rsync
 RUN apt-get install -y npm
 RUN apt-get install -y ffmpeg
+RUN apt-get update && apt-get install -y libpq-dev && docker-php-ext-install pdo pdo_pgsql
 
 
 # Install PHP Extensions (igbinary & memcached)
