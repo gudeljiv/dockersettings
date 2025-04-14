@@ -1,0 +1,59 @@
+#REACT_BOILER
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot "/var/www/html/react-boiler"
+    ServerName localhost
+	<Directory "/var/www/html/react-boiler">
+		AllowOverride all
+	</Directory>
+</VirtualHost>
+
+#MEET IN ZAGREB
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot "/var/www/html/Meetinzagreb-V2"
+    ServerName www.meetinzagreb.test
+	<Directory "/var/www/html/Meetinzagreb-V2">
+		AllowOverride all
+	</Directory>
+</VirtualHost>
+
+#LOVEZAGREB
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot "/var/www/html/Lovezagreb"
+    ServerName www.lovezagreb.test
+	<Directory "/var/www/html/Lovezagreb">
+		AllowOverride all
+	</Directory>
+</VirtualHost>
+
+#DIGITALNA PRIJAVA
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot "/var/www/html/TZGZ-DigitalniWeb"
+    ServerName digitalna-prijava.tzgz.test
+	<Directory "/var/www/html/TZGZ-DigitalniWeb">
+		AllowOverride all
+	</Directory>
+</VirtualHost>
+
+#BILLS
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot "/var/www/html/Aladin"
+    ServerName my.bills.test
+	<Directory "/var/www/html/Aladin">
+		AllowOverride all
+	</Directory>
+</VirtualHost>
+
+#BILLS-WEB
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot "/var/www/html/Aladin-web"
+    ServerName www.bills.test
+	<Directory "/var/www/html/Aladin-web">
+		AllowOverride all
+	</Directory>
+</VirtualHost>

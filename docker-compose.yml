@@ -1,0 +1,128 @@
+services:
+    webserver7.3:
+        container_name: 'webserver7.3'
+        build:
+            context: ./bin/webserver7.3
+        restart: 'always'
+        ports:
+            - '80:80'
+            - '443:443'
+            - '9001:9001'
+        networks:
+            - backend
+        volumes:
+            - ../../:/var/www/html
+            - ./config/php7.3/php/php.ini:/usr/local/etc/php/php.ini
+            - ./config/php7.3/vhosts:/etc/apache2/sites-enabled
+            - ./config/php7.3/apache2.conf:/etc/apache2/apache2.conf
+            - ./logs/php7.3/apache2:/var/log/apache2
+            - ./config/.bashrc:/root/.bashrc
+            - ./config/supervisor:/etc/supervisor
+            - ./config/openssl:/etc/ssl
+        links:
+            - beanstalkd:beanstalkd
+            - memcached:memcached
+
+    webserver8.1:
+        container_name: 'webserver8.1'
+        build:
+            context: ./bin/webserver8.1
+        restart: 'always'
+        ports:
+            - '81:80'
+            - '444:443'
+            - '9002:9001'
+        networks:
+            - backend
+        volumes:
+            - ../../:/var/www/html
+            - ./config/php8.1/php/php.ini:/usr/local/etc/php/php.ini
+            - ./config/php8.1/vhosts:/etc/apache2/sites-enabled
+            - ./config/php8.1/apache2.conf:/etc/apache2/apache2.conf
+            - ./logs/php8.1/apache2:/var/log/apache2
+            - ./config/.bashrc:/root/.bashrc
+            - ./config/supervisor:/etc/supervisor
+            - ./config/openssl:/etc/ssl
+        links:
+            - beanstalkd:beanstalkd
+            - memcached:memcached
+
+    mysql:
+        container_name: 'mariadb'
+        image: mariadb:10.8.3
+        # command: mysqld --innodb-flush-method=littlesync --innodb-use-native-aio=OFF --log_bin=ON
+        restart: 'always'
+        networks:
+            - backend
+        ports:
+            - '3306:3306'
+        volumes:
+            - ./data/mysql:/var/lib/mysql
+            - ./config/mysql:/etc/mysql
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+        environment:
+            MYSQL_ROOT_HOST: 'localhost'
+            MYSQL_ROOT_PASSWORD: borming
+            MARIADB_AUTO_UPGRADE: 1
+
+    beanstalkd:
+        container_name: 'beanstalkd'
+        image: schickling/beanstalkd:latest
+        restart: always
+        networks:
+            - backend
+        ports:
+            - '11300:11300'
+
+    memcached:
+        container_name: 'memcached'
+        image: bitnami/memcached:latest
+        restart: always
+        networks:
+            - backend
+        ports:
+            - '11211:11211'
+
+    redis:
+        container_name: 'redis'
+        image: docker.io/bitnami/redis:6.0-debian-10
+        restart: always
+        environment:
+            # ALLOW_EMPTY_PASSWORD is recommended only for development.
+            - ALLOW_EMPTY_PASSWORD=yes
+            - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+        networks:
+            - backend
+        ports:
+            - '6379:6379'
+
+    postgres14:
+        container_name: postgres14
+        image: postgres:14.1
+        restart: always
+        environment:
+            - POSTGRES_USER=root
+            - POSTGRES_PASSWORD=borming
+        ports:
+            - '5432:5432'
+        volumes:
+            - ./data/postgresql_14.1:/var/lib/postgresql/data
+        networks:
+            - backend
+
+    postgres17:
+        container_name: postgres17
+        image: postgres:17.4
+        restart: always
+        environment:
+            - POSTGRES_USER=root
+            - POSTGRES_PASSWORD=borming
+        ports:
+            - '5433:5432'
+        volumes:
+            - ./data/postgresql_17.4:/var/lib/postgresql/data
+        networks:
+            - backend
+
+networks:
+    backend:
